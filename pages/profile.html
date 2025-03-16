@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Government Press+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
+    <style>
+        :root {
+            --primary-color: #0d3b66;
+            --primary-light: #1a4f84;
+            --primary-dark: #042c53;
+            --accent-color: #ee6c4d;
+            --danger-color: #d62828;
+            --success-color: #25a18e;
+            --light-bg: #f8f9fa;
+            --text-color: #2d3142;
+            --text-light: #4f5d75;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-color);
+        }
+        
+        /* Device Frame */
+        .device-container {
+            perspective: 1000px;
+        }
+        
+        .mobile-frame {
+            width: 375px;
+            height: 760px;
+            background-color: var(--white);
+            border-radius: 50px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 10px #111,
+                0 0 0 10.5px #333;
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg) rotateX(2deg);
+            transition: transform 0.5s ease;
+        }
+
+        .mobile-frame:hover {
+            transform: rotateY(0deg) rotateX(0deg);
+        }
+        
+        /* iPhone Notch */
+        .notch-container {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .notch {
+            position: absolute;
+            width: 200px;
+            height: 30px;
+            background-color: #111;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 101;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            height: 46px;
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 22px;
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 99;
+        }
+        
+        .time {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* App Content */
+        .app-content {
+            height: calc(100% - 128px);
+            overflow-y: auto;
+            background-color: var(--light-bg);
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .app-content::-webkit-scrollbar {
+            width: 0px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            height: 82px;
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px; /* For home indicator */
+        }
+        
+        .bottom-nav a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            width: 60px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .bottom-nav a:hover, .bottom-nav a.active {
+            color: var(--white);
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-3px);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* App Header */
+        .app-header {
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .menu-icon, .settings-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-icon:hover, .settings-icon:hover {
+            opacity: 0.8;
+        }
+        
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 5px;
+            background-color: rgba(255,255,255,0.6);
+            border-radius: 100px;
+        }
+
+        /* Profile Specific Styles */
+        .profile-content {
+            padding: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(13, 59, 102, 0.25);
+            border: 4px solid var(--white);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-edit-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--white);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .profile-role {
+            font-size: 14px;
+            color: var(--text-light);
+            background-color: rgba(13, 59, 102, 0.1);
+            padding: 3px 12px;
+            border-radius: 100px;
+            font-weight: 500;
+        }
+
+        .profile-section {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 8px;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .profile-detail {
+            display: flex;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-detail:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-label {
+            width: 110px;
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: var(--text-color);
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .preferences-list {
+            list-style: none;
+        }
+
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .preference-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .preference-label {
+            font-size: 14px;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preference-description {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 3px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--success-color);
+        }
+
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px var(--success-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .logout-button {
+            background-color: var(--danger-color);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(214, 40, 40, 0.2);
+        }
+
+        .logout-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(214, 40, 40, 0.3);
+        }
+
+        .logout-button i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-container">
+        <div class="mobile-frame">
+            <!-- Notch -->
+            <div class="notch-container">
+                <div class="notch"></div>
+            </div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="time">9:41 AM</div>
+                <div class="status-icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <!-- App Header -->
+            <div class="app-header">
+                <div class="menu-icon"><i class="fas fa-arrow-left"></i></div>
+                <div>My Profile</div>
+                <div class="settings-icon"><i class="fas fa-cog"></i></div>
+            </div>
+            
+            <!-- App Content -->
+            <div class="app-content">
+                <div class="profile-content">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <div class="profile-edit-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile Photo">
+                        </div>
+                        <div class="profile-name">Sarah Citizen</div>
+                        <div class="profile-role">Verified Citizen</div>
+                    </div>
+                    
+                    <!-- Personal Information Section -->
+                    <div class="profile-section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i> Personal Information
+                        </div>
+                        <div class="profile-detail">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">sarah.citizen@example.com</div>
+                        </div>
+                        <div class="profile-detail">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value">+1 (555) 123-4567</div>
+                        </div>
+                        <div class="profile-detail">
+                            <div class="detail-label">ID Number</div>
+                            <div class="detail-value">••••••1234</div>
+                        </div>
+                        <div class="profile-detail">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value">Capital City, Region</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification Preferences -->
+                    <div class="profile-section">
+                        <div class="section-title">
+                            <i class="fas fa-bell"></i> Notification Preferences
+                        </div>
+                        <ul class="preferences-list">
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Push Notifications
+                                    <span class="preference-description">Receive alerts on your device</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Email Notifications
+                                    <span class="preference-description">Receive notices via email</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Critical Alerts
+                                    <span class="preference-description">Emergency notifications</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Subscription Settings -->
+                    <div class="profile-section">
+                        <div class="section-title">
+                            <i class="fas fa-envelope"></i> Subscribe to Updates
+                        </div>
+                        <ul class="preferences-list">
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Health Notices
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Education Updates
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                            <li class="preference-item">
+                                <div class="preference-label">
+                                    Transportation Notices
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Logout Button -->
+                    <button class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i> Log Out
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <a href="home.html">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </a>
+                <a href="acts-gazettes.html">
+                    <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
+                    <div>Docs</div>
+                </a>
+                <a href="notice-detail.html">
+                    <div class="nav-icon"><i class="fas fa-bullhorn"></i></div>
+                    <div>Notices</div>
+                </a>
+                <a href="profile.html" class="active">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </a>
+            </div>
+            
+            <!-- Home Indicator (iPhone-style) -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Press+ App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <style>
+        :root {
+            --primary-color: #0d3b66;
+            --primary-light: #1a4f84;
+            --primary-dark: #042c53;
+            --accent-color: #ee6c4d;
+            --danger-color: #d62828;
+            --success-color: #25a18e;
+            --light-bg: #f8f9fa;
+            --text-color: #2d3142;
+            --text-light: #4f5d75;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-color);
+        }
+        
+        /* Device Frame */
+        .device-container {
+            perspective: 1000px;
+        }
+        
+        .mobile-frame {
+            width: 375px;
+            height: 760px;
+            background-color: var(--white);
+            border-radius: 50px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 10px #111,
+                0 0 0 10.5px #333;
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg) rotateX(2deg);
+            transition: transform 0.5s ease;
+        }
+
+        .mobile-frame:hover {
+            transform: rotateY(0deg) rotateX(0deg);
+        }
+        
+        /* iPhone Notch */
+        .notch-container {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .notch {
+            position: absolute;
+            width: 200px;
+            height: 30px;
+            background-color: #111;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 101;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            height: 46px;
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 22px;
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 99;
+        }
+        
+        .time {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* App Content */
+        .app-content {
+            height: calc(100% - 128px);
+            overflow-y: auto;
+            background-color: var(--light-bg);
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .app-content::-webkit-scrollbar {
+            width: 0px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            height: 82px;
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px; /* For home indicator */
+        }
+        
+        .bottom-nav a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            width: 60px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .bottom-nav a:hover, .bottom-nav a.active {
+            color: var(--white);
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-3px);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* App Header */
+        .app-header {
+            background: var(--primary-color);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .menu-icon, .profile-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-icon:hover, .profile-icon:hover {
+            opacity: 0.8;
+        }
+        
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 5px;
+            background-color: rgba(255,255,255,0.6);
+            border-radius: 100px;
+        }
+        
+        /* Demo Links */
+        .demo-links {
+            padding: 20px;
+        }
+        
+        .demo-links h2 {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .demo-links p {
+            color: var(--text-light);
+            margin-bottom: 25px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .demo-links ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .demo-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--white);
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 18px 10px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            height: 100px;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .btn-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        /* Critical Alert */
+        .critical-alert {
+            background: linear-gradient(to right, #d62828, #f94144);
+            color: white;
+            padding: 15px;
+            margin: 0 0 15px 0;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 15px rgba(214, 40, 40, 0.3);
+        }
+
+        .critical-alert i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.85;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-container">
+        <div class="mobile-frame">
+            <!-- Notch -->
+            <div class="notch-container">
+                <div class="notch"></div>
+            </div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="time">9:41 AM</div>
+                <div class="status-icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <!-- App Header -->
+            <div class="app-header">
+                <div class="menu-icon"><i class="fas fa-bars"></i></div>
+                <div>Government Press+</div>
+                <div class="profile-icon"><i class="fas fa-user-circle"></i></div>
+            </div>
+            
+            <!-- App Content -->
+            <div class="app-content">
+                <div class="demo-links">
+                    <!-- Critical Alert Example -->
+                    <div class="critical-alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Weather Alert: Heavy rainfall expected in coastal regions today</div>
+                    </div>
+                    
+                    <h2>Official Government Press+</h2>
+                    <p>Your trusted source for official press releases and gazettes.</p>
+                    
+                    <ul>
+                        <li><a href="pages/splash.html" class="demo-button">
+                            <i class="fas fa-mobile-alt btn-icon"></i>
+                            Splash Screen
+                        </a></li>
+                        <li><a href="pages/onboarding.html" class="demo-button">
+                            <i class="fas fa-clipboard-list btn-icon"></i>
+                            Onboarding
+                        </a></li>
+                        <li><a href="pages/login.html" class="demo-button">
+                            <i class="fas fa-sign-in-alt btn-icon"></i>
+                            Login
+                        </a></li>
+                        <li><a href="pages/home.html" class="demo-button">
+                            <i class="fas fa-home btn-icon"></i>
+                            Home Feed
+                        </a></li>
+                        <li><a href="pages/notice-detail.html" class="demo-button">
+                            <i class="fas fa-bullhorn btn-icon"></i>
+                            Notice Detail
+                        </a></li>
+                        <li><a href="pages/acts-gazettes.html" class="demo-button">
+                            <i class="fas fa-file-alt btn-icon"></i>
+                            Acts & Gazettes
+                        </a></li>
+                        <li><a href="pages/profile.html" class="demo-button">
+                            <i class="fas fa-user btn-icon"></i>
+                            Profile
+                        </a></li>
+                        <li><a href="pages/admin.html" class="demo-button">
+                            <i class="fas fa-cog btn-icon"></i>
+                            Admin Dashboard
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <a href="pages/home.html" class="active">
+                    <div class="nav-icon"><i class="fas fa-home"></i></div>
+                    <div>Home</div>
+                </a>
+                <a href="pages/acts-gazettes.html">
+                    <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
+                    <div>Docs</div>
+                </a>
+                <a href="pages/notice-detail.html">
+                    <div class="nav-icon"><i class="fas fa-bullhorn"></i></div>
+                    <div>Notices</div>
+                </a>
+                <a href="pages/profile.html">
+                    <div class="nav-icon"><i class="fas fa-user"></i></div>
+                    <div>Profile</div>
+                </a>
+            </div>
+            
+            <!-- Home Indicator (iPhone-style) -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
