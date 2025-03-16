@@ -302,8 +302,47 @@
             }
         }
     </style>
+     <style>
+        /* Admin quick access styling */
+        .admin-access {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .admin-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .admin-link:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
+        <!-- Admin quick access link (outside the mobile frame) -->
+        <div class="admin-access">
+            <a href="pages/admin.html" class="admin-link">
+                <i class="fas fa-shield-alt"></i>
+                Admin Dashboard
+            </a>
+        </div>
+        
+    
     <div class="device-container">
         <div class="mobile-frame">
             <!-- Notch -->
@@ -369,10 +408,6 @@
                             <i class="fas fa-user btn-icon"></i>
                             Profile
                         </a></li>
-                        <li><a href="pages/admin.html" class="demo-button">
-                            <i class="fas fa-cog btn-icon"></i>
-                            Admin Dashboard
-                        </a></li>
                     </ul>
                 </div>
             </div>
@@ -402,6 +437,7 @@
         </div>
     </div>
 
+    <script src="assets/js/app.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>
