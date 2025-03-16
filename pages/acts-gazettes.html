@@ -313,7 +313,110 @@
             text-align: center;
             margin-top: 8px;
         }
+        /* Search & Filter Styles */
+.search-container {
+    margin-bottom: 24px;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.search-bar {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+#document-search {
+    width: 100%;
+    padding: 12px 40px 12px 38px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+    background-color: #f9f9f9;
+}
+
+#document-search:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    background-color: var(--white);
+    box-shadow: 0 0 0 2px rgba(13, 59, 102, 0.1);
+}
+
+.clear-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 5px;
+    display: none;
+}
+
+.filter-options {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-right: 10px;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.filter-chip {
+    background: #f1f1f1;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 100px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-chip.active {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.search-results-info {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+#results-count {
+    font-weight: 700;
+    color: var(--primary-color);
+}
     </style>
+    
+    
 </head>
 <body>
     <div class="device-container">
@@ -345,13 +448,35 @@
             </div>
             
             <!-- App Content -->
-            <div class="app-content">
-                <div class="acts-gazettes-content">
-                    <h1 class="section-title">Official Documents</h1>
-                    <p class="section-description">Access and download official government documents, acts and gazettes.</p>
-                    
-                    <div class="document-card">
-                        <h3>Act No. 2025-01: Environmental Protection</h3>
+            <div class="acts-gazettes-content">
+                <h1 class="section-title">Official Documents</h1>
+                <p class="section-description">Access and download official government documents, acts and gazettes.</p>
+                
+                <!-- Search & Filter Section -->
+                <div class="search-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search documents..." id="document-search">
+                        <button class="clear-search" id="clear-search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="filter-options">
+                        <div class="filter-label">Filter by:</div>
+                        <div class="filter-chips">
+                            <button class="filter-chip active" data-filter="all">All</button>
+                            <button class="filter-chip" data-filter="act">Acts</button>
+                            <button class="filter-chip" data-filter="gazette">Gazettes</button>
+                            <button class="filter-chip" data-filter="notice">Notices</button>
+                        </div>
+                    </div>
+                    <div class="search-results-info">
+                        <span id="results-count">4</span> documents found
+                    </div>
+                </div>
+                
+                <div class="document-card">
+                    <h3>Act No. 2025-01: Environmental Protection</h3>
                         <div class="document-meta">
                             <div class="document-date">
                                 <i class="fas fa-calendar-alt"></i> March 16, 2025
@@ -434,5 +559,63 @@
     </div>
 
     <script src="../assets/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('document-search');
+            const clearSearch = document.getElementById('clear-search');
+            const filterChips = document.querySelectorAll('.filter-chip');
+            const resultsCount = document.getElementById('results-count');
+            const documentCards = document.querySelectorAll('.document-card');
+            
+            // Show clear button when search has text
+            searchInput.addEventListener('input', function() {
+                clearSearch.style.display = this.value ? 'block' : 'none';
+                filterDocuments();
+            });
+            
+            // Clear search when button clicked
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                clearSearch.style.display = 'none';
+                filterDocuments();
+            });
+            
+            // Handle filter chip selection
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    filterChips.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    filterDocuments();
+                });
+            });
+            
+            // Filter documents based on search text and selected filter
+            function filterDocuments() {
+                const searchText = searchInput.value.toLowerCase();
+                const activeFilter = document.querySelector('.filter-chip.active').dataset.filter;
+                
+                let visibleCount = 0;
+                
+                documentCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const type = card.querySelector('.document-type').textContent.toLowerCase();
+                    
+                    // Check if card matches both search text and filter
+                    const matchesSearch = searchText === '' || title.includes(searchText);
+                    const matchesFilter = activeFilter === 'all' || type.toLowerCase() === activeFilter;
+                    
+                    if (matchesSearch && matchesFilter) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Update results count
+                resultsCount.textContent = visibleCount;
+            }
+        });
+    </script>
 </body>
 </html>
